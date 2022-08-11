@@ -1,0 +1,174 @@
+---
+title: "Qatar 2022"
+author: ''
+date: 'Última actualización `r Sys.Date()`'
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = FALSE, message = FALSE, warning = FALSE)
+```
+
+```{r}
+# https://themockup.blog/posts/2020-05-13-reactable-tables-the-rest-of-the-owl/
+#https://stackoverflow.com/questions/64422095/produce-country-flag-using-emoji-in-r-in-gt-table
+#https://icons8.com/icon/set/flags/color
+library(tidyverse)
+library(reactable)
+library(reactablefmtr)
+load("resultados.Rda")
+names(prob_grupos) <- c("País","Campeón","Subcampeón","Semifinal",
+                        "Cuartos","Octavos", "1ro Grupo", "2do Grupo",
+                        "3ro Grupo", "4to Grupo")
+prob_grupos$Pos <- c(1:32)
+prob_grupos <- prob_grupos %>% select("Pos","País","Campeón","Subcampeón","Semifinal",
+                        "Cuartos","Octavos", "1ro Grupo", "2do Grupo",
+                        "3ro Grupo", "4to Grupo")
+prob_grupos[,3:11] <- round(prob_grupos[,3:11]*100,2)
+
+xmin <- min(prob_grupos[,3:11])
+xmax <- max(prob_grupos[,3:11])
+
+make_color_pal <- function(colors, bias = 1) {
+  get_color <- colorRamp(colors, bias = bias)
+  function(x) rgb(get_color(x), maxColorValue = 255)
+}
+
+good_color <- make_color_pal(c("#ffffff", "#f2fbd2", "#c9ecb4", "#93d3ab", "#35b0ab"), bias = 2)
+
+prob_grupos <- prob_grupos %>%
+ mutate(
+ img = case_when(
+ País == "Brasil" ~
+ "./Banderas/brasil.png",
+ País == "Argentina" ~
+ "./Banderas/argentina.png",
+ País == "Francia" ~
+ "./Banderas/francia.png",
+ TRUE ~ "NA"))
+
+
+```
+
+### Probabilidades
+
+```{r}
+
+prob_grupos %>% 
+  reactable(
+    # ALL one page option (no scrolling or page swapping)
+    pagination = FALSE,
+    # compact for an overall smaller table width wise
+    compact = TRUE,
+    # borderless - TRUE or FALSE
+    borderless = FALSE,
+    # Stripes - TRUE or FALSE
+    striped = FALSE,
+    # fullWidth - either fit to width or not
+    fullWidth = FALSE,
+    # apply defaults
+    # 100 px and align to center of column
+    defaultColDef = colDef(
+      align = "center",
+      minWidth = 100
+    ),
+    
+    # Add theme for the top border
+    theme = reactableTheme(
+      headerStyle = list(
+        "&:hover[aria-sort]" = list(background = "hsl(0, 0%, 96%)"),
+        "&[aria-sort='ascending'], &[aria-sort='descending']" =
+          list(background = "hsl(0, 0%, 96%)"),
+        borderColor = "#555"
+      )),
+    
+    # This part allows us to apply specific things to each column
+    columns = list(
+      img = colDef(cell = embed_img()),
+      Campeón = colDef(
+        name = "Campeón",
+        style = function(value) {
+          value
+          normalized <- (value - xmin) / (xmax - xmin)
+          color <- good_color(normalized)
+          list(background = color)
+        }
+      ),
+      Subcampeón = colDef(
+        name = "Subcampeón",
+        style = function(value) {
+          value
+          normalized <- (value - xmin) / (xmax - xmin)
+          color <- good_color(normalized)
+          list(background = color)
+        }
+      ),
+      Semifinal = colDef(
+        name = "Semifinal",
+        style = function(value) {
+          value
+          normalized <- (value - xmin) / (xmax - xmin)
+          color <- good_color(normalized)
+          list(background = color)
+        }
+      ),
+      Cuartos = colDef(
+        name = "Cuartos",
+        style = function(value) {
+          value
+          normalized <- (value - xmin) / (xmax - xmin)
+          color <- good_color(normalized)
+          list(background = color)
+        }
+      ),
+      Octavos = colDef(
+        name = "Octavos",
+        style = function(value) {
+          value
+          normalized <- (value - xmin) / (xmax - xmin)
+          color <- good_color(normalized)
+          list(background = color)
+        }
+      ),
+      `1ro Grupo` = colDef(
+        name = "1ro Grupo",
+        style = function(value) {
+          value
+          normalized <- (value - xmin) / (xmax - xmin)
+          color <- good_color(normalized)
+          list(background = color)
+        }
+      ),
+      `2do Grupo` = colDef(
+        name = "2do Grupo",
+        style = function(value) {
+          value
+          normalized <- (value - xmin) / (xmax - xmin)
+          color <- good_color(normalized)
+          list(background = color)
+        }
+      ),
+      `3ro Grupo` = colDef(
+        name = "3ro Grupo",
+        style = function(value) {
+          value
+          normalized <- (value - xmin) / (xmax - xmin)
+          color <- good_color(normalized)
+          list(background = color)
+        }
+      ),
+      `4to Grupo` = colDef(
+        name = "4to Grupo",
+        style = function(value) {
+          value
+          normalized <- (value - xmin) / (xmax - xmin)
+          color <- good_color(normalized)
+          list(background = color)
+        }
+      )
+      )
+    )
+```
+
+
+
