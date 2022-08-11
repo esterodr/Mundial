@@ -40,14 +40,16 @@ prob_grupos <- prob_grupos %>%
  mutate(
  img = case_when(
  País == "Brasil" ~
- "./Banderas/brasil.png",
+ "https://github.com/esterodr/Mundial/tree/main/Banderas/brasil.png",
  País == "Argentina" ~
- "./Banderas/argentina.png",
+ "https://github.com/esterodr/Mundial/tree/main/Banderas/argentina.png",
  País == "Francia" ~
- "./Banderas/francia.png",
+ "https://github.com/esterodr/Mundial/tree/main/Banderas/francia.png",
  TRUE ~ "NA"))
 
-
+prob_grupos <- prob_grupos %>% select("Pos","img","País","Campeón","Subcampeón","Semifinal",
+                        "Cuartos","Octavos", "1ro Grupo", "2do Grupo",
+                        "3ro Grupo", "4to Grupo")
 ```
 
 ### Probabilidades
@@ -84,7 +86,8 @@ prob_grupos %>%
     
     # This part allows us to apply specific things to each column
     columns = list(
-      img = colDef(cell = embed_img()),
+      img = colDef(cell = embed_img(),
+                   name=""),
       Campeón = colDef(
         name = "Campeón",
         style = function(value) {
