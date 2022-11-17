@@ -12,9 +12,6 @@ knitr::opts_chunk$set(echo = FALSE, message = FALSE, warning = FALSE)
 ---
 
 ```{r}
-# https://themockup.blog/posts/2020-05-13-reactable-tables-the-rest-of-the-owl/
-#https://stackoverflow.com/questions/64422095/produce-country-flag-using-emoji-in-r-in-gt-table
-#https://icons8.com/icon/set/flags/color
 library(tidyverse)
 library(reactable)
 library(reactablefmtr)
@@ -118,6 +115,8 @@ xmax <- max(prob_grupos[,4:9])
 ```
 
 Cálculo de probabilidades realizado con fines didáctico para el curso de Estadística a cargo de Esteban Rodríguez, en la Facultad de Ciencias Económicas, UBA.
+
+[Link al material de la clase](https://esterodr.github.io/Clases/Mundial.html)
 
 ---
 

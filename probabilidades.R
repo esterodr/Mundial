@@ -3,7 +3,7 @@
 library(tidyverse)
 
 # link https://www.kaggle.com/martj42/international-football-results-from-1872-to-2017
-matches <- read_csv("results.csv")
+matches <- read_csv("results.csv") |> filter(!is.na(home_score))
 
 teams <- data.frame(team=unique(c(matches$home_team,matches$away_team)))
 teams$elo <- 1500

@@ -2,3 +2,9 @@
 .Rhistory
 .RData
 .Ruserdata
+results_*.*
+elo_*.*
+probabilidades_*.*
+resultados_*.*
+actualización.R
+simulacion_*.*

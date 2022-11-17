@@ -37,7 +37,9 @@ fixture_grupos <- tibble(grupo=c(rep("A",6),rep("B",6),rep("C",6),rep("D",6),
                              c(2,3,4,3,4,4)+28),
                          Resultado=NA)
 
-N <- 100000
+#N <- 100000
+N <- 25000
+
 # Columnas: simulacion, equipo, posiciones 11
 # Files N*32
 simulaciones <- as.matrix(data.frame(N=rep(c(1:N),32)[order(rep(c(1:N),32))],
@@ -70,6 +72,7 @@ for(i in(1:48)) {
   }
 }
 
+options(dplyr.summarise.inform = FALSE)
 
 Ns <- 0
 ss <- replicate(N, {
@@ -92,16 +95,13 @@ ss <- replicate(N, {
     arrange(grupo,desc(Puntos))
   
   primeros <- pos %>% group_by(grupo) %>% filter(row_number()==1) %>% ungroup()
-  simulaciones[(Ns-1)*32+c(1:8),2] <<- primeros$A
-  simulaciones[(Ns-1)*32+c(1:8),8] <<- rep(1,8)
   segundos <- pos %>% group_by(grupo) %>% filter(row_number()==2) %>% ungroup()
-  simulaciones[(Ns-1)*32+c(9:16),2] <<- segundos$A
-  simulaciones[(Ns-1)*32+c(9:16),9] <<- rep(1,8)
   terceros <- pos %>% group_by(grupo) %>% filter(row_number()==3) %>% ungroup()
-  simulaciones[(Ns-1)*32+c(17:24),2] <<- terceros$A
-  simulaciones[(Ns-1)*32+c(17:24),10] <<- rep(1,8)
   cuartos <- pos %>% group_by(grupo) %>% filter(row_number()==4) %>% ungroup()
-  simulaciones[(Ns-1)*32+c(25:32),2] <<- cuartos$A
+  simulaciones[(Ns-1)*32+c(1:32),2] <<- c(primeros$A,segundos$A,terceros$A,cuartos$A)
+  simulaciones[(Ns-1)*32+c(1:8),8] <<- rep(1,8)
+  simulaciones[(Ns-1)*32+c(9:16),9] <<- rep(1,8)
+  simulaciones[(Ns-1)*32+c(17:24),10] <<- rep(1,8)
   simulaciones[(Ns-1)*32+c(25:32),11] <<- rep(1,8)
   
   ## Octavos
