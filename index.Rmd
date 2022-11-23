@@ -216,6 +216,27 @@ prob_grupos %>%
     )
 ```
 
+### Evolución diaria de la probabilidad de salir campeón
+
+```{r}
+load("evolucion.Rda")
+
+df |> mutate(Posición=-1*Posición) |> 
+  ggplot(aes(x=Fecha,y=Posición,color=id)) +
+  geom_line(size=1) +
+  geom_point(aes(fill=id),shape=21,size=2,color="black") +
+  scale_y_continuous(breaks = unique(-1*df$Posición),
+                     labels = df$id[df$Fecha==min(df$Fecha)],
+                     sec.axis = sec_axis(~ . * 1,breaks = unique(-1*df$Posición),
+                                         labels = df$id[df$Fecha==max(df$Fecha)])) +
+  scale_x_continuous(breaks = c(0,1,2)) +
+  labs(x="",y="") +
+  theme(legend.position = "null",
+        panel.background = element_blank(),
+        axis.ticks = element_blank())
+```
+
+
 ---
 
 
