@@ -3,7 +3,33 @@
 library(tidyverse)
 
 # link https://www.kaggle.com/martj42/international-football-results-from-1872-to-2017
-matches <- read_csv("results.csv") |> filter(!is.na(home_score))
+matches <- read_csv("results.csv") 
+# matches$home_score[matches$date=="2022-11-20"] <- 0
+# matches$away_score[matches$date=="2022-11-20"] <- 2
+# matches$home_score[matches$date=="2022-11-21"&matches$home_team=="Senegal"] <- 0
+# matches$away_score[matches$date=="2022-11-21"&matches$home_team=="Senegal"] <- 2
+# matches$home_score[matches$date=="2022-11-21"&matches$home_team=="England"] <- 6
+# matches$away_score[matches$date=="2022-11-21"&matches$home_team=="England"] <- 2
+# matches$home_score[matches$date=="2022-11-21"&matches$home_team=="United States"] <- 1
+# matches$away_score[matches$date=="2022-11-21"&matches$home_team=="United States"] <- 1
+# matches$home_score[matches$date=="2022-11-22"&matches$home_team=="Argentina"] <- 1
+# matches$away_score[matches$date=="2022-11-22"&matches$home_team=="Argentina"] <- 2
+# matches$home_score[matches$date=="2022-11-22"&matches$home_team=="Mexico"] <- 0
+# matches$away_score[matches$date=="2022-11-22"&matches$home_team=="Mexico"] <- 0
+# matches$home_score[matches$date=="2022-11-22"&matches$home_team=="Denmark"] <- 0
+# matches$away_score[matches$date=="2022-11-22"&matches$home_team=="Denmark"] <- 0
+# matches$home_score[matches$date=="2022-11-22"&matches$home_team=="France"] <- 4
+# matches$away_score[matches$date=="2022-11-22"&matches$home_team=="France"] <- 1
+# matches$home_score[matches$date=="2022-11-23"&matches$home_team=="Germany"] <- 1
+# matches$away_score[matches$date=="2022-11-23"&matches$home_team=="Germany"] <- 2
+# #matches$home_score[matches$date=="2022-11-23"&matches$home_team=="Spain"] <- 4
+# #matches$away_score[matches$date=="2022-11-23"&matches$home_team=="Spain"] <- 1
+# matches$home_score[matches$date=="2022-11-23"&matches$home_team=="Morocco"] <- 0
+# matches$away_score[matches$date=="2022-11-23"&matches$home_team=="Morocco"] <- 0
+# #matches$home_score[matches$date=="2022-11-23"&matches$home_team=="Belgium"] <- 4
+# #matches$away_score[matches$date=="2022-11-23"&matches$home_team=="Belgium"] <- 1
+
+matches <- matches |> filter(!is.na(home_score))
 
 teams <- data.frame(team=unique(c(matches$home_team,matches$away_team)))
 teams$elo <- 1500
