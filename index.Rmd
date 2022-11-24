@@ -216,7 +216,7 @@ prob_grupos %>%
     )
 ```
 
-### Evolución diaria de la probabilidad de salir campeón
+### Evolución diaria del equipo favorito
 
 ```{r}
 load("evolucion.Rda")
