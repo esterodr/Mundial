@@ -216,7 +216,7 @@ prob_grupos %>%
     )
 ```
 
-### Evolución diaria del equipo favorito
+### Evolución de la probabilidad de salir campeón por fecha
 
 ```{r}
 load("evolucion.Rda")
@@ -305,6 +305,7 @@ grupos %>% filter(País %in% c("Qatar","Ecuador","Senegal","Holanda")) %>%
         style = function(value) {
           value
           normalized <- (value - xmin) / (xmax - xmin)
+          normalized[normalized<0] <- 0
           color <- good_color(normalized)
           list(background = color)
         }
