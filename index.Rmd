@@ -244,7 +244,7 @@ df |> ggplot(aes(x=Fecha,y=P1,color=id)) +
   geom_point(aes(fill=id),shape=21,size=2,color="black") +
   geom_text(data = df |> filter(id=="Brasil"), 
             aes(x=Fecha,y=P1+0.01,label=paste0(round(P1,2)*100,"%"))) +
-  geom_text(data = df |> filter(id=="Holanda"), 
+  geom_text(data = df |> filter(id=="Argentina"), 
             aes(x=Fecha,y=P1+0.01,label=paste0(round(P1,2)*100,"%"))) +
   scale_y_continuous(breaks = df$P1[df$Fecha==min(df$Fecha)&df$P1>0.03],
                      labels = df$id[df$Fecha==min(df$Fecha)&df$P1>0.03],
