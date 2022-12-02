@@ -22,7 +22,7 @@ df <- rbind(df,df2)
 load("resultados.Rda")
 
 df2 <- prob_grupos |> select(id,P1) |>
-  mutate(Fecha=as.Date("2022-12-01"))
+  mutate(Fecha=as.Date("2022-12-02"))
 
 df <- rbind(df,df2)
 
@@ -58,7 +58,7 @@ load("resultados.Rda")
 
 df2 <- prob_grupos |> select(id) |>
   mutate(Posición=seq(1,32,1),
-         Fecha=as.Date("2022-12-01"))
+         Fecha=as.Date("2022-12-02"))
 
 df <- rbind(df,df2)
 
