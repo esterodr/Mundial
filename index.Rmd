@@ -1,877 +1,517 @@
 ---
-title: "Probabilidades para el mundial Qatar 2022"
-author: ''
-date: 'Última actualización `r Sys.Date()`'
+title: "Simulación Mundial 2026 - Probabilidades"
+author: ""
+date: "`r Sys.Date()` Se actualizará después de cada partido"
 output: html_document
 ---
 
+
+
 ```{r setup, include=FALSE}
 knitr::opts_chunk$set(echo = FALSE, message = FALSE, warning = FALSE)
-```
-
----
-
-```{r}
 library(tidyverse)
 library(reactable)
 library(reactablefmtr)
-load("resultados.Rda")
-names(prob_grupos) <- c("País","Campeón","Subcampeón","Semifinal",
-                        "Cuartos","Octavos", "1ro Grupo", "2do Grupo",
-                        "3ro Grupo", "4to Grupo")
-prob_grupos$Pos <- c(1:32)
-prob_grupos <- prob_grupos %>% select("Pos","País","Campeón","Subcampeón","Semifinal",
-                        "Cuartos","Octavos", "1ro Grupo", "2do Grupo",
-                        "3ro Grupo", "4to Grupo")
-prob_grupos[,3:11] <- round(prob_grupos[,3:11]*100,2)
 
-make_color_pal <- function(colors, bias = 1) {
-  get_color <- colorRamp(colors, bias = bias)
-  function(x) rgb(get_color(x), maxColorValue = 255)
+# Cargamos los datos guardados
+load("resultados_simulacion_mundial.RData")
+
+# Definir las columnas que componen la Fase Final
+cols_fase_final <- c("Campeón", "Subcampeón", "Tercero", "Cuarto", 
+                     "Cuartos de Final", "Octavos de Final", "16avos de Final")
+
+# Preparar tabla maestra con la nueva columna calculada
+tabla_maestra <- probs_instancia %>%
+  mutate(`Eliminado en Grupos` = 1 - rowSums(select(., all_of(cols_fase_final)))) %>%
+  left_join(probs_grupo, by = "Equipo") %>%
+  mutate(
+    img = case_when(
+      Equipo == "Alemania" ~ "https://flagcdn.com/w40/de.png",
+      Equipo == "Arabia Saudita" ~ "https://flagcdn.com/w40/sa.png",
+      Equipo == "Argelia" ~ "https://flagcdn.com/w40/dz.png",
+      Equipo == "Argentina" ~ "https://flagcdn.com/w40/ar.png",
+      Equipo == "Australia" ~ "https://flagcdn.com/w40/au.png",
+      Equipo == "Austria" ~ "https://flagcdn.com/w40/at.png",
+      Equipo == "Bosnia y Herzegovina" ~ "https://flagcdn.com/w40/ba.png",
+      Equipo == "Brasil" ~ "https://flagcdn.com/w40/br.png",
+      Equipo == "Bélgica" ~ "https://flagcdn.com/w40/be.png",
+      Equipo == "Cabo Verde" ~ "https://flagcdn.com/w40/cv.png",
+      Equipo == "Canadá" ~ "https://flagcdn.com/w40/ca.png",
+      Equipo == "Catar" ~ "https://flagcdn.com/w40/qa.png",
+      Equipo == "Chequia" ~ "https://flagcdn.com/w40/cz.png",
+      Equipo == "Colombia" ~ "https://flagcdn.com/w40/co.png",
+      Equipo == "Corea del Sur" ~ "https://flagcdn.com/w40/kr.png",
+      Equipo == "Costa de Marfil" ~ "https://flagcdn.com/w40/ci.png",
+      Equipo == "Croacia" ~ "https://flagcdn.com/w40/hr.png",
+      Equipo == "Curazao" ~ "https://flagcdn.com/w40/cw.png",
+      Equipo == "Ecuador" ~ "https://flagcdn.com/w40/ec.png",
+      Equipo == "Egipto" ~ "https://flagcdn.com/w40/eg.png",
+      Equipo == "Escocia" ~ "https://flagcdn.com/w40/gb-sct.png",
+      Equipo == "España" ~ "https://flagcdn.com/w40/es.png",
+      Equipo == "Estados Unidos" ~ "https://flagcdn.com/w40/us.png",
+      Equipo == "Francia" ~ "https://flagcdn.com/w40/fr.png",
+      Equipo == "Ghana" ~ "https://flagcdn.com/w40/gh.png",
+      Equipo == "Haití" ~ "https://flagcdn.com/w40/ht.png",
+      Equipo == "Inglaterra" ~ "https://flagcdn.com/w40/gb-eng.png",
+      Equipo == "Irak" ~ "https://flagcdn.com/w40/iq.png",
+      Equipo == "Irán" ~ "https://flagcdn.com/w40/ir.png",
+      Equipo == "Japón" ~ "https://flagcdn.com/w40/jp.png",
+      Equipo == "Jordania" ~ "https://flagcdn.com/w40/jo.png",
+      Equipo == "Marruecos" ~ "https://flagcdn.com/w40/ma.png",
+      Equipo == "México" ~ "https://flagcdn.com/w40/mx.png",
+      Equipo == "Noruega" ~ "https://flagcdn.com/w40/no.png",
+      Equipo == "Nueva Zelanda" ~ "https://flagcdn.com/w40/nz.png",
+      Equipo == "Panamá" ~ "https://flagcdn.com/w40/pa.png",
+      Equipo == "Paraguay" ~ "https://flagcdn.com/w40/py.png",
+      Equipo == "Países Bajos" ~ "https://flagcdn.com/w40/nl.png",
+      Equipo == "Portugal" ~ "https://flagcdn.com/w40/pt.png",
+      Equipo == "RD Congo" ~ "https://flagcdn.com/w40/cd.png",
+      Equipo == "Senegal" ~ "https://flagcdn.com/w40/sn.png",
+      Equipo == "Sudáfrica" ~ "https://flagcdn.com/w40/za.png",
+      Equipo == "Suecia" ~ "https://flagcdn.com/w40/se.png",
+      Equipo == "Suiza" ~ "https://flagcdn.com/w40/ch.png",
+      Equipo == "Turquía" ~ "https://flagcdn.com/w40/tr.png",
+      Equipo == "Túnez" ~ "https://flagcdn.com/w40/tn.png",
+      Equipo == "Uruguay" ~ "https://flagcdn.com/w40/uy.png",
+      Equipo == "Uzbekistán" ~ "https://flagcdn.com/w40/uz.png",
+      TRUE ~ NA_character_
+    )
+  ) %>%
+  select(
+    img, Equipo, 
+    all_of(cols_fase_final), `Eliminado en Grupos`,
+    `1° Lugar`, `2° Lugar`, `3° Lugar`, `4° Lugar`
+  ) %>%
+  arrange(desc(Campeón))
+
+# --- NUEVO: Procesamiento de probabilidades de la Fase de Grupos ---
+# Nos aseguramos de tomar solo los primeros 72 partidos (Fase de Grupos)
+partidos_fase_grupos <- partidos[1:72, ]
+
+prob_partidos_list <- vector("list", 72)
+for(i in 1:72) {
+  p_col <- paste0("P", i)
+  goles_A <- goles_A_matrix[, p_col]
+  goles_B <- goles_B_matrix[, p_col]
+  
+  prob_partidos_list[[i]] <- data.frame(
+    Partido = i,
+    `Equipo 1` = partidos_fase_grupos$`Equipo A`[i],
+    `Equipo 2` = partidos_fase_grupos$`Equipo B`[i],
+    `Gana Equipo 1` = mean(goles_A > goles_B),
+    `Gana Equipo 2` = mean(goles_B > goles_A),
+    Empate = mean(goles_A == goles_B),
+    check.names = FALSE
+  )
+}
+tabla_fase_grupos <- do.call(rbind, prob_partidos_list) |> 
+  filter(`Gana Equipo 1`<1 & `Gana Equipo 2`<1 & `Empate`<1)
+# ------------------------------------------------------------------
+
+# Función para gradiente Verde (alto) -> Rojo (bajo)
+calc_color <- function(value, vector_referencia) {
+  if (is.na(value) || value == 0) return("#ffffff")
+  
+  v_num <- as.numeric(vector_referencia)
+  min_val <- min(v_num, na.rm = TRUE)
+  max_val <- max(v_num, na.rm = TRUE)
+  
+  if (max_val == min_val) return("#ffffff")
+  
+  # Normalización entre 0 y 1
+  pct <- (value - min_val) / (max_val - min_val)
+  pct <- max(0, min(1, pct)) # Control de bordes
+  
+  # Tu nueva paleta con el sesgo (bias) en 2
+  color_func <- colorRamp(c("#ffffff", "#f2fbd2", "#c9ecb4", "#93d3ab", "#35b0ab"), bias = 2)
+  rgb_color <- color_func(pct)
+  rgb(rgb_color[1], rgb_color[2], rgb_color[3], maxColorValue = 255)
 }
 
-good_color <- make_color_pal(c("#ffffff", "#f2fbd2", "#c9ecb4", "#93d3ab", "#35b0ab"), bias = 2)
-
-prob_grupos <- prob_grupos %>%
- mutate(
- img = case_when(
- País == "Brasil" ~
- "https://flagcdn.com/w2560/br.png",
- País == "Argentina" ~
- "https://flagcdn.com/w2560/ar.png",
- País == "Francia" ~
- "https://flagcdn.com/w2560/fr.png",
- País == "España" ~
- "https://flagcdn.com/w2560/es.png",
- País == "Bélgica" ~
- "https://flagcdn.com/w2560/be.png",
- País == "Inglaterra" ~
- "https://flagcdn.com/w2560/gb-eng.png",
- País == "Holanda" ~
- "https://flagcdn.com/w2560/nl.png",
- País == "Alemania" ~
- "https://flagcdn.com/w2560/de.png",
- País == "Portugal" ~
- "https://flagcdn.com/w2560/pt.png",
- País == "Dinamarca" ~
- "https://flagcdn.com/w2560/dk.png",
- País == "Uruguay" ~
- "https://flagcdn.com/w2560/uy.png",
- País == "Estados Unidos" ~
- "https://flagcdn.com/w2560/us.png",
- País == "Irán" ~
- "https://flagcdn.com/w2560/ir.png",
- País == "Corea del Sur" ~
- "https://flagcdn.com/w2560/kr.png",
- País == "Suiza" ~
- "https://flagcdn.com/w2560/ch.png",
- País == "Croacia" ~
- "https://flagcdn.com/w2560/hr.png",
- País == "México" ~
- "https://flagcdn.com/w2560/mx.png",
- País == "Ecuador" ~
- "https://flagcdn.com/w2560/ec.png",
- País == "Japón" ~
- "https://flagcdn.com/w2560/jp.png",
- País == "Polonia" ~
- "https://flagcdn.com/w2560/pl.png",
- País == "Serbia" ~
- "https://flagcdn.com/w2560/rs.png",
- País == "Gales" ~
- "https://flagcdn.com/w2560/gb-wls.png",
- País == "Marruecos" ~
- "https://flagcdn.com/w2560/ma.png",
- País == "Senegal" ~
- "https://flagcdn.com/w2560/sn.png",
- País == "Australia" ~
- "https://flagcdn.com/w2560/au.png",
- País == "Canadá" ~
- "https://flagcdn.com/w2560/ca.png",
- País == "Túnez" ~
- "https://flagcdn.com/w2560/tn.png",
- País == "Qatar" ~
- "https://flagcdn.com/w2560/qa.png",
- País == "Costa Rica" ~
- "https://flagcdn.com/w2560/cr.png",
- País == "Arabia Saudita" ~
- "https://flagcdn.com/w2560/sa.png",
- País == "Camerún" ~
- "https://flagcdn.com/w2560/cm.png",
- País == "Ghana" ~
- "https://flagcdn.com/w2560/gh.png",
- TRUE ~ "NA"))
-
-grupos <- prob_grupos %>% select("img","País","1ro Grupo", "2do Grupo",
-                        "3ro Grupo", "4to Grupo")
-
-prob_grupos <- prob_grupos %>%
-  mutate(Grupos = `3ro Grupo` + `4to Grupo`) %>% 
-  select("Pos","img","País","Campeón","Subcampeón","Semifinal",
-                        "Cuartos","Octavos", "Grupos")
-
-xmin <- min(prob_grupos[,4:9])
-xmax <- max(prob_grupos[,4:9])
-
-```
-
-Cálculo de probabilidades realizado con fines didáctico para el curso de Estadística a cargo de Esteban Rodríguez, en la Facultad de Ciencias Económicas, UBA.
-
-[Link al material de la clase](https://esterodr.github.io/Clases/Mundial.html)
-
----
-
-### ¿Cómo puede salir cada equipo?
-
-En la siguiente tabla, cada celda indica la probabilidad de que esa sea la última instancia que alcance el equipo. Por ejemplo, la columna "Grupos" indica la probabilidad de quedar eliminado en la fase de grupos, la columna "Octavos" indica la probabilidad de llegar a Octavos de Final y quedar eliminado ahí, etc.
-
-```{r}
-
-prob_grupos %>% 
-  reactable(
-    # ALL one page option (no scrolling or page swapping)
-    pagination = FALSE,
-    # compact for an overall smaller table width wise
-    compact = TRUE,
-    # borderless - TRUE or FALSE
-    borderless = FALSE,
-    # Stripes - TRUE or FALSE
-    striped = FALSE,
-    # fullWidth - either fit to width or not
-    fullWidth = FALSE,
-    # apply defaults
-    # 100 px and align to center of column
-    defaultColDef = colDef(
-      align = "center",
-      minWidth = 100
-    ),
-    
-    # Add theme for the top border
-    theme = reactableTheme(
-      headerStyle = list(
-        "&:hover[aria-sort]" = list(background = "hsl(0, 0%, 96%)"),
-        "&[aria-sort='ascending'], &[aria-sort='descending']" =
-          list(background = "hsl(0, 0%, 96%)"),
-        borderColor = "#555"
-      )),
-    
-    # This part allows us to apply specific things to each column
-    columns = list(
-      img = colDef(cell = embed_img(height = 20, width = 30),
-                   name=""),
-      Campeón = colDef(
-        name = "Campeón",
-        style = function(value) {
-          value
-          normalized <- (value - xmin) / (xmax - xmin)
-          color <- good_color(normalized)
-          list(background = color)
+# --- NUEVO: Función para generar tablas por grupo automáticamente ---
+generar_tabla_grupo <- function(equipos_grupo) {
+  tabla_maestra %>% 
+    filter(Equipo %in% equipos_grupo) %>% 
+    select(img, Equipo, `1° Lugar`, `2° Lugar`, `3° Lugar`, `4° Lugar`) %>% 
+    arrange(desc(`1° Lugar`)) %>% 
+    reactable(
+      pagination = FALSE,
+      compact = TRUE,
+      borderless = FALSE,
+      defaultColDef = colDef(
+        align = "center",
+        minWidth = 100,
+        format = colFormat(percent = TRUE, digits = 1),
+        style = function(value, index, name) {
+          if (name %in% c("1° Lugar", "2° Lugar", "3° Lugar", "4° Lugar")) {
+            # Escala absoluta de 0% a 100% usando tu nueva paleta
+            color <- calc_color(value, c(0, 1))
+            return(list(backgroundColor = color))
+          }
+          return(list(backgroundColor = "#ffffff"))
         }
       ),
-      Subcampeón = colDef(
-        name = "Subcampeón",
-        style = function(value) {
-          value
-          normalized <- (value - xmin) / (xmax - xmin)
-          color <- good_color(normalized)
-          list(background = color)
-        }
+      theme = reactableTheme(
+        headerStyle = list(
+          "&:hover[aria-sort]" = list(background = "hsl(0, 0%, 96%)"),
+          borderColor = "#555"
+        )
       ),
-      Semifinal = colDef(
-        name = "Semifinal",
-        style = function(value) {
-          value
-          normalized <- (value - xmin) / (xmax - xmin)
-          color <- good_color(normalized)
-          list(background = color)
-        }
-      ),
-      Cuartos = colDef(
-        name = "Cuartos",
-        style = function(value) {
-          value
-          normalized <- (value - xmin) / (xmax - xmin)
-          color <- good_color(normalized)
-          list(background = color)
-        }
-      ),
-      Octavos = colDef(
-        name = "Octavos",
-        style = function(value) {
-          value
-          normalized <- (value - xmin) / (xmax - xmin)
-          color <- good_color(normalized)
-          list(background = color)
-        }
-      ),
-      Grupos = colDef(
-        name = "Grupos",
-        style = function(value) {
-          value
-          normalized <- (value - xmin) / (xmax - xmin)
-          color <- good_color(normalized)
-          list(background = color)
-        }
-      )
+      columns = list(
+        img = colDef(
+          name = "", 
+          minWidth = 50,
+          style = list(backgroundColor = "#fff"),
+          cell = function(value) {
+            if (is.na(value)) return("") 
+            htmltools::img(src = value, style = "height: 20px; width: 30px;")
+          }
+        ),
+        Equipo = colDef(style = list(fontWeight = "bold", textAlign = "left", backgroundColor = "#fff"), minWidth = 150)
       )
     )
+}
 ```
 
-### Evolución de la probabilidad de salir campeón por fecha
+# Resumen de Probabilidades por Equipo
+
+Esta tabla muestra la probabilidad de finalizar en alguno de los primeros 4 puestos, o de quedar eliminado en alguna de las instancias previas. 
 
 ```{r}
-load("evolucion.Rda")
+# Filtramos para mostrar solo hasta Eliminado en Grupos
+tabla_resumen <- tabla_maestra %>% 
+  mutate(Pos = row_number()) %>% 
+  select(Pos, img, Equipo, all_of(cols_fase_final), `Eliminado en Grupos`)
 
-df |> mutate(Posición=-1*Posición) |> 
-  ggplot(aes(x=Fecha,y=Posición,color=id)) +
-  geom_line(size=1) +
-  geom_point(aes(fill=id),shape=21,size=2,color="black") +
-  scale_y_continuous(breaks = unique(-1*df$Posición),
-                     labels = df$id[df$Fecha==min(df$Fecha)],
-                     sec.axis = sec_axis(~ . * 1,breaks = unique(-1*df$Posición),
-                                         labels = df$id[df$Fecha==max(df$Fecha)])) +
-  scale_x_continuous(breaks = unique(df$Fecha), 
-                     labels = c("Inicial","Fecha 1","Fecha 2", "Actual")) +
-  labs(x="",y="") +
-  theme(legend.position = "null",
-        panel.background = element_blank(),
-        axis.ticks = element_blank())
-```
-
-```{r}
-load("evolucion2.Rda")
-
-df |> ggplot(aes(x=Fecha,y=P1,color=id)) +
-  geom_line(size=1) +
-  geom_point(aes(fill=id),shape=21,size=2,color="black") +
-  geom_text(data = df |> filter(id=="Brasil"), 
-            aes(x=Fecha,y=P1+0.01,label=paste0(round(P1,2)*100,"%"))) +
-  geom_text(data = df |> filter(id=="Argentina"), 
-            aes(x=Fecha,y=P1+0.01,label=paste0(round(P1,2)*100,"%"))) +
-  scale_y_continuous(breaks = df$P1[df$Fecha==min(df$Fecha)&df$P1>0.03],
-                     labels = df$id[df$Fecha==min(df$Fecha)&df$P1>0.03],
-                     sec.axis = sec_axis(~ . * 1,
-                                         breaks = df$P1[df$Fecha==max(df$Fecha)&df$P1>0.03],
-                                         labels = df$id[df$Fecha==max(df$Fecha)&df$P1>0.03])) +
-  scale_x_continuous(breaks = unique(df$Fecha), 
-                     labels = c("Inicial","Fecha 1","Fecha 2", "Actual")) +
-  labs(x="",y="") +
-  theme(legend.position = "null",
-        panel.background = element_blank(),
-        axis.ticks = element_blank())
+reactable(
+  tabla_resumen,
+  pagination = FALSE,
+  height = 900,
+  compact = TRUE,
+  bordered = TRUE,
+  defaultColDef = colDef(
+    format = colFormat(percent = TRUE, digits = 1),
+    minWidth = 90,
+    style = function(value, index, name) {
+      if (name %in% c(cols_fase_final, "Eliminado en Grupos")) {
+        ref_vals <- tabla_resumen[index, 4:ncol(tabla_resumen)]
+        color <- calc_color(value, ref_vals)
+        return(list(backgroundColor = color))
+      }
+      return(list(backgroundColor = "#ffffff"))
+    }
+  ),
+  columns = list(
+    Pos = colDef(
+      name = "N°",
+      width = 50,
+      align = "center",
+      style = list(fontWeight = "bold", backgroundColor = "#fff", color = "#555"),
+      # Forzamos a que devuelva el valor puro para evadir el porcentaje global
+      cell = function(value) value 
+    ),
+    img = colDef(
+      name = "", 
+      minWidth = 50,
+      style = list(backgroundColor = "#fff"),
+      cell = function(value) {
+        if (is.na(value)) return("") 
+        htmltools::img(src = value, style = "height: 20px; width: 30px;")
+      }
+    ),
+    Equipo = colDef(
+      sticky = "left",
+      style = list(fontWeight = "bold", backgroundColor = "#fff", borderRight = "3px solid #eee"),
+      minWidth = 150
+    ),
+    `Eliminado en Grupos` = colDef(
+      style = function(value, index) {
+        ref_vals <- tabla_resumen[index, 4:ncol(tabla_resumen)]
+        color <- calc_color(value, ref_vals)
+        list(backgroundColor = color, borderRight = "3px solid #000", fontWeight = "bold")
+      }
+    )
+  )
+)
 ```
 
 ---
 
+## Evolución de las probabilidades
 
-### Posiciones en cada grupo
+Evolución del ranking de probabilidades de salir campeón.
+
+```{r fig.width=10, fig.height=14}
+# Cargar datos
+load("evolucion_historica.Rda")
+
+# 1. Armamos dos dataframes auxiliares ordenados por posición inicial y final
+df_ini <- df_evolucion |>
+  filter(Partidos_Jugados == min(Partidos_Jugados)) |>
+  arrange(Posición)
+
+df_fin <- df_evolucion |>
+  filter(Partidos_Jugados == max(Partidos_Jugados)) |>
+  arrange(Posición)
 
 
-#### Grupo A
+# --- GRÁFICO 1: EVOLUCIÓN DE POSICIONES ---
+df_evolucion |> mutate(Posición = -1 * Posición) |>
+  ggplot(aes(x = Partidos_Jugados, y = Posición, color = id)) +
+  geom_line(size = 1) +
+  geom_point(aes(fill = id), shape = 21, size = 2, color = "black") +
+  scale_y_continuous(
+    # Eje izquierdo (Inicial)
+    breaks = -1 * df_ini$Posición,
+    labels = df_ini$id,
+    # Eje derecho (Final)
+    sec.axis = sec_axis(~ .,
+                        breaks = -1 * df_fin$Posición,
+                        labels = df_fin$id)
+  ) +
+  scale_x_continuous(
+    breaks = unique(df_evolucion$Partidos_Jugados),
+    name = "Partidos Jugados"
+  ) +
+  labs(x = "Partidos Jugados", y = "") +
+  theme(legend.position = "none",
+        panel.background = element_blank(),
+        axis.ticks = element_blank())
 
-```{r}
-grupos %>% filter(País %in% c("Qatar","Ecuador","Senegal","Holanda")) %>% 
-  arrange(desc("1ro Grupo")) %>% 
-  reactable(
-    # ALL one page option (no scrolling or page swapping)
-    pagination = FALSE,
-    # compact for an overall smaller table width wise
-    compact = TRUE,
-    # borderless - TRUE or FALSE
-    borderless = FALSE,
-    # Stripes - TRUE or FALSE
-    striped = FALSE,
-    # fullWidth - either fit to width or not
-    fullWidth = FALSE,
-    # apply defaults
-    # 100 px and align to center of column
-    defaultColDef = colDef(
-      align = "center",
-      minWidth = 100
-    ),
-    
-    # Add theme for the top border
-    theme = reactableTheme(
-      headerStyle = list(
-        "&:hover[aria-sort]" = list(background = "hsl(0, 0%, 96%)"),
-        "&[aria-sort='ascending'], &[aria-sort='descending']" =
-          list(background = "hsl(0, 0%, 96%)"),
-        borderColor = "#555"
-      )),
-    
-    # This part allows us to apply specific things to each column
-    columns = list(
-      img = colDef(cell = embed_img(height = 20, width = 30),
-                   name=""),
-      `1ro Grupo` = colDef(
-        name = "1ro Grupo",
-        style = function(value) {
-          value
-          normalized <- (value - xmin) / (xmax - xmin)
-          normalized[normalized<0] <- 0
-          color <- good_color(normalized)
-          list(background = color)
-        }
-      ),
-      `2do Grupo` = colDef(
-        name = "2do Grupo",
-        style = function(value) {
-          value
-          normalized <- (value - xmin) / (xmax - xmin)
-          color <- good_color(normalized)
-          list(background = color)
-        }
-      ),
-      `3ro Grupo` = colDef(
-        name = "3ro Grupo",
-        style = function(value) {
-          value
-          normalized <- (value - xmin) / (xmax - xmin)
-          color <- good_color(normalized)
-          list(background = color)
-        }
-      ),
-      `4to Grupo` = colDef(
-        name = "4to Grupo",
-        style = function(value) {
-          value
-          normalized <- (value - xmin) / (xmax - xmin)
-          color <- good_color(normalized)
-          list(background = color)
-        }
-      )
-      )
-    )
+
+# # --- GRÁFICO 2: EVOLUCIÓN DE PROBABILIDADES ---
+# # Filtramos directamente en los dataframes auxiliares los que superan el 3%
+# df_ini_p <- df_ini |> filter(P1 > 0.03)
+# df_fin_p <- df_fin |> filter(P1 > 0.03)
+# 
+# df_evolucion |> ggplot(aes(x = Partidos_Jugados, y = P1, color = id)) +
+#   geom_line(size = 1) +
+#   geom_point(aes(fill = id), shape = 21, size = 2, color = "black") +
+#   geom_text(data = df_evolucion |> filter(id == "Brasil"), 
+#             aes(x = Partidos_Jugados, y = P1 + 0.01, label = paste0(round(P1, 2) * 100, "%"))) +
+#   geom_text(data = df_evolucion |> filter(id == "Argentina"), 
+#             aes(x = Partidos_Jugados, y = P1 + 0.01, label = paste0(round(P1, 2) * 100, "%"))) +
+#   scale_y_continuous(
+#     # Eje izquierdo (Inicial)
+#     breaks = df_ini_p$P1,
+#     labels = df_ini_p$id,
+#     # Eje derecho (Final)
+#     sec.axis = sec_axis(~ .,
+#                         breaks = df_fin_p$P1,
+#                         labels = df_fin_p$id)
+#   ) +
+#   scale_x_continuous(
+#     breaks = unique(df_evolucion$Partidos_Jugados), 
+#     name = "Partidos Jugados"
+#   ) +
+#   labs(x = "Partidos Jugados", y = "") +
+#   theme(legend.position = "none",
+#         panel.background = element_blank(),
+#         axis.ticks = element_blank())
 ```
 
 
-#### Grupo B
+---
+
+## Tablas por grupo
+
+### Grupo A
 
 ```{r}
-grupos %>% filter(País %in% c("Inglaterra","Irán","Estados Unidos","Gales")) %>% 
-  arrange(desc("1ro Grupo")) %>% 
-  reactable(
-    # ALL one page option (no scrolling or page swapping)
-    pagination = FALSE,
-    # compact for an overall smaller table width wise
-    compact = TRUE,
-    # borderless - TRUE or FALSE
-    borderless = FALSE,
-    # Stripes - TRUE or FALSE
-    striped = FALSE,
-    # fullWidth - either fit to width or not
-    fullWidth = FALSE,
-    # apply defaults
-    # 100 px and align to center of column
-    defaultColDef = colDef(
-      align = "center",
-      minWidth = 100
-    ),
-    
-    # Add theme for the top border
-    theme = reactableTheme(
-      headerStyle = list(
-        "&:hover[aria-sort]" = list(background = "hsl(0, 0%, 96%)"),
-        "&[aria-sort='ascending'], &[aria-sort='descending']" =
-          list(background = "hsl(0, 0%, 96%)"),
-        borderColor = "#555"
-      )),
-    
-    # This part allows us to apply specific things to each column
-    columns = list(
-      img = colDef(cell = embed_img(height = 20, width = 30),
-                   name=""),
-      `1ro Grupo` = colDef(
-        name = "1ro Grupo",
-        style = function(value) {
-          value
-          normalized <- (value - xmin) / (xmax - xmin)
-          color <- good_color(normalized)
-          list(background = color)
-        }
-      ),
-      `2do Grupo` = colDef(
-        name = "2do Grupo",
-        style = function(value) {
-          value
-          normalized <- (value - xmin) / (xmax - xmin)
-          color <- good_color(normalized)
-          list(background = color)
-        }
-      ),
-      `3ro Grupo` = colDef(
-        name = "3ro Grupo",
-        style = function(value) {
-          value
-          normalized <- (value - xmin) / (xmax - xmin)
-          color <- good_color(normalized)
-          list(background = color)
-        }
-      ),
-      `4to Grupo` = colDef(
-        name = "4to Grupo",
-        style = function(value) {
-          value
-          normalized <- (value - xmin) / (xmax - xmin)
-          color <- good_color(normalized)
-          list(background = color)
-        }
-      )
-      )
-    )
+grupo <- "A"
+generar_tabla_grupo(unique(c((partidos |> filter(Grupo==grupo) |> pull(`Equipo A`)),(partidos |> filter(Grupo==grupo) |> pull(`Equipo B`))))) 
 ```
 
-#### Grupo C
+### Grupo B
 
 ```{r}
-grupos %>% filter(País %in% c("Argentina","Arabia Saudita","México","Polonia")) %>% 
-  arrange(desc("1ro Grupo")) %>% 
-  reactable(
-    # ALL one page option (no scrolling or page swapping)
-    pagination = FALSE,
-    # compact for an overall smaller table width wise
-    compact = TRUE,
-    # borderless - TRUE or FALSE
-    borderless = FALSE,
-    # Stripes - TRUE or FALSE
-    striped = FALSE,
-    # fullWidth - either fit to width or not
-    fullWidth = FALSE,
-    # apply defaults
-    # 100 px and align to center of column
-    defaultColDef = colDef(
-      align = "center",
-      minWidth = 100
-    ),
-    
-    # Add theme for the top border
-    theme = reactableTheme(
-      headerStyle = list(
-        "&:hover[aria-sort]" = list(background = "hsl(0, 0%, 96%)"),
-        "&[aria-sort='ascending'], &[aria-sort='descending']" =
-          list(background = "hsl(0, 0%, 96%)"),
-        borderColor = "#555"
-      )),
-    
-    # This part allows us to apply specific things to each column
-    columns = list(
-      img = colDef(cell = embed_img(height = 20, width = 30),
-                   name=""),
-      `1ro Grupo` = colDef(
-        name = "1ro Grupo",
-        style = function(value) {
-          value
-          normalized <- (value - xmin) / (xmax - xmin)
-          color <- good_color(normalized)
-          list(background = color)
-        }
-      ),
-      `2do Grupo` = colDef(
-        name = "2do Grupo",
-        style = function(value) {
-          value
-          normalized <- (value - xmin) / (xmax - xmin)
-          color <- good_color(normalized)
-          list(background = color)
-        }
-      ),
-      `3ro Grupo` = colDef(
-        name = "3ro Grupo",
-        style = function(value) {
-          value
-          normalized <- (value - xmin) / (xmax - xmin)
-          color <- good_color(normalized)
-          list(background = color)
-        }
-      ),
-      `4to Grupo` = colDef(
-        name = "4to Grupo",
-        style = function(value) {
-          value
-          normalized <- (value - xmin) / (xmax - xmin)
-          color <- good_color(normalized)
-          list(background = color)
-        }
-      )
-      )
-    )
+grupo <- "B"
+generar_tabla_grupo(unique(c((partidos |> filter(Grupo==grupo) |> pull(`Equipo A`)),(partidos |> filter(Grupo==grupo) |> pull(`Equipo B`))))) 
 ```
 
-#### Grupo D
+### Grupo C
 
 ```{r}
-grupos %>% filter(País %in% c("Francia","Australia","Dinamarca","Túnez")) %>% 
-  arrange(desc("1ro Grupo")) %>% 
-  reactable(
-    # ALL one page option (no scrolling or page swapping)
-    pagination = FALSE,
-    # compact for an overall smaller table width wise
-    compact = TRUE,
-    # borderless - TRUE or FALSE
-    borderless = FALSE,
-    # Stripes - TRUE or FALSE
-    striped = FALSE,
-    # fullWidth - either fit to width or not
-    fullWidth = FALSE,
-    # apply defaults
-    # 100 px and align to center of column
-    defaultColDef = colDef(
-      align = "center",
-      minWidth = 100
-    ),
-    
-    # Add theme for the top border
-    theme = reactableTheme(
-      headerStyle = list(
-        "&:hover[aria-sort]" = list(background = "hsl(0, 0%, 96%)"),
-        "&[aria-sort='ascending'], &[aria-sort='descending']" =
-          list(background = "hsl(0, 0%, 96%)"),
-        borderColor = "#555"
-      )),
-    
-    # This part allows us to apply specific things to each column
-    columns = list(
-      img = colDef(cell = embed_img(height = 20, width = 30),
-                   name=""),
-      `1ro Grupo` = colDef(
-        name = "1ro Grupo",
-        style = function(value) {
-          value
-          normalized <- (value - xmin) / (xmax - xmin)
-          color <- good_color(normalized)
-          list(background = color)
-        }
-      ),
-      `2do Grupo` = colDef(
-        name = "2do Grupo",
-        style = function(value) {
-          value
-          normalized <- (value - xmin) / (xmax - xmin)
-          color <- good_color(normalized)
-          list(background = color)
-        }
-      ),
-      `3ro Grupo` = colDef(
-        name = "3ro Grupo",
-        style = function(value) {
-          value
-          normalized <- (value - xmin) / (xmax - xmin)
-          color <- good_color(normalized)
-          list(background = color)
-        }
-      ),
-      `4to Grupo` = colDef(
-        name = "4to Grupo",
-        style = function(value) {
-          value
-          normalized <- (value - xmin) / (xmax - xmin)
-          color <- good_color(normalized)
-          list(background = color)
-        }
-      )
-      )
-    )
+grupo <- "C"
+generar_tabla_grupo(unique(c((partidos |> filter(Grupo==grupo) |> pull(`Equipo A`)),(partidos |> filter(Grupo==grupo) |> pull(`Equipo B`))))) 
 ```
 
-#### Grupo E
+### Grupo D
 
 ```{r}
-grupos %>% filter(País %in% c("España","Costa Rica","Alemania","Japón")) %>% 
-  arrange(desc("1ro Grupo")) %>% 
-  reactable(
-    # ALL one page option (no scrolling or page swapping)
-    pagination = FALSE,
-    # compact for an overall smaller table width wise
-    compact = TRUE,
-    # borderless - TRUE or FALSE
-    borderless = FALSE,
-    # Stripes - TRUE or FALSE
-    striped = FALSE,
-    # fullWidth - either fit to width or not
-    fullWidth = FALSE,
-    # apply defaults
-    # 100 px and align to center of column
-    defaultColDef = colDef(
-      align = "center",
-      minWidth = 100
-    ),
-    
-    # Add theme for the top border
-    theme = reactableTheme(
-      headerStyle = list(
-        "&:hover[aria-sort]" = list(background = "hsl(0, 0%, 96%)"),
-        "&[aria-sort='ascending'], &[aria-sort='descending']" =
-          list(background = "hsl(0, 0%, 96%)"),
-        borderColor = "#555"
-      )),
-    
-    # This part allows us to apply specific things to each column
-    columns = list(
-      img = colDef(cell = embed_img(height = 20, width = 30),
-                   name=""),
-      `1ro Grupo` = colDef(
-        name = "1ro Grupo",
-        style = function(value) {
-          value
-          normalized <- (value - xmin) / (xmax - xmin)
-          color <- good_color(normalized)
-          list(background = color)
-        }
-      ),
-      `2do Grupo` = colDef(
-        name = "2do Grupo",
-        style = function(value) {
-          value
-          normalized <- (value - xmin) / (xmax - xmin)
-          color <- good_color(normalized)
-          list(background = color)
-        }
-      ),
-      `3ro Grupo` = colDef(
-        name = "3ro Grupo",
-        style = function(value) {
-          value
-          normalized <- (value - xmin) / (xmax - xmin)
-          color <- good_color(normalized)
-          list(background = color)
-        }
-      ),
-      `4to Grupo` = colDef(
-        name = "4to Grupo",
-        style = function(value) {
-          value
-          normalized <- (value - xmin) / (xmax - xmin)
-          color <- good_color(normalized)
-          list(background = color)
-        }
-      )
-      )
-    )
+grupo <- "D"
+generar_tabla_grupo(unique(c((partidos |> filter(Grupo==grupo) |> pull(`Equipo A`)),(partidos |> filter(Grupo==grupo) |> pull(`Equipo B`))))) 
 ```
 
-#### Grupo F
+### Grupo E
 
 ```{r}
-grupos %>% filter(País %in% c("Bélgica","Canadá","Marruecos","Croacia")) %>% 
-  arrange(desc("1ro Grupo")) %>% 
-  reactable(
-    # ALL one page option (no scrolling or page swapping)
-    pagination = FALSE,
-    # compact for an overall smaller table width wise
-    compact = TRUE,
-    # borderless - TRUE or FALSE
-    borderless = FALSE,
-    # Stripes - TRUE or FALSE
-    striped = FALSE,
-    # fullWidth - either fit to width or not
-    fullWidth = FALSE,
-    # apply defaults
-    # 100 px and align to center of column
-    defaultColDef = colDef(
-      align = "center",
-      minWidth = 100
-    ),
-    
-    # Add theme for the top border
-    theme = reactableTheme(
-      headerStyle = list(
-        "&:hover[aria-sort]" = list(background = "hsl(0, 0%, 96%)"),
-        "&[aria-sort='ascending'], &[aria-sort='descending']" =
-          list(background = "hsl(0, 0%, 96%)"),
-        borderColor = "#555"
-      )),
-    
-    # This part allows us to apply specific things to each column
-    columns = list(
-      img = colDef(cell = embed_img(height = 20, width = 30),
-                   name=""),
-      `1ro Grupo` = colDef(
-        name = "1ro Grupo",
-        style = function(value) {
-          value
-          normalized <- (value - xmin) / (xmax - xmin)
-          color <- good_color(normalized)
-          list(background = color)
-        }
-      ),
-      `2do Grupo` = colDef(
-        name = "2do Grupo",
-        style = function(value) {
-          value
-          normalized <- (value - xmin) / (xmax - xmin)
-          color <- good_color(normalized)
-          list(background = color)
-        }
-      ),
-      `3ro Grupo` = colDef(
-        name = "3ro Grupo",
-        style = function(value) {
-          value
-          normalized <- (value - xmin) / (xmax - xmin)
-          color <- good_color(normalized)
-          list(background = color)
-        }
-      ),
-      `4to Grupo` = colDef(
-        name = "4to Grupo",
-        style = function(value) {
-          value
-          normalized <- (value - xmin) / (xmax - xmin)
-          color <- good_color(normalized)
-          list(background = color)
-        }
-      )
-      )
-    )
+grupo <- "E"
+generar_tabla_grupo(unique(c((partidos |> filter(Grupo==grupo) |> pull(`Equipo A`)),(partidos |> filter(Grupo==grupo) |> pull(`Equipo B`))))) 
 ```
 
-#### Grupo G
+### Grupo F
 
 ```{r}
-grupos %>% filter(País %in% c("Brasil","Serbia","Suiza","Camerún")) %>% 
-  arrange(desc("1ro Grupo")) %>% 
-  reactable(
-    # ALL one page option (no scrolling or page swapping)
-    pagination = FALSE,
-    # compact for an overall smaller table width wise
-    compact = TRUE,
-    # borderless - TRUE or FALSE
-    borderless = FALSE,
-    # Stripes - TRUE or FALSE
-    striped = FALSE,
-    # fullWidth - either fit to width or not
-    fullWidth = FALSE,
-    # apply defaults
-    # 100 px and align to center of column
-    defaultColDef = colDef(
-      align = "center",
-      minWidth = 100
-    ),
-    
-    # Add theme for the top border
-    theme = reactableTheme(
-      headerStyle = list(
-        "&:hover[aria-sort]" = list(background = "hsl(0, 0%, 96%)"),
-        "&[aria-sort='ascending'], &[aria-sort='descending']" =
-          list(background = "hsl(0, 0%, 96%)"),
-        borderColor = "#555"
-      )),
-    
-    # This part allows us to apply specific things to each column
-    columns = list(
-      img = colDef(cell = embed_img(height = 20, width = 30),
-                   name=""),
-      `1ro Grupo` = colDef(
-        name = "1ro Grupo",
-        style = function(value) {
-          value
-          normalized <- (value - xmin) / (xmax - xmin)
-          color <- good_color(normalized)
-          list(background = color)
-        }
-      ),
-      `2do Grupo` = colDef(
-        name = "2do Grupo",
-        style = function(value) {
-          value
-          normalized <- (value - xmin) / (xmax - xmin)
-          color <- good_color(normalized)
-          list(background = color)
-        }
-      ),
-      `3ro Grupo` = colDef(
-        name = "3ro Grupo",
-        style = function(value) {
-          value
-          normalized <- (value - xmin) / (xmax - xmin)
-          color <- good_color(normalized)
-          list(background = color)
-        }
-      ),
-      `4to Grupo` = colDef(
-        name = "4to Grupo",
-        style = function(value) {
-          value
-          normalized <- (value - xmin) / (xmax - xmin)
-          color <- good_color(normalized)
-          list(background = color)
-        }
-      )
-      )
-    )
+grupo <- "F"
+generar_tabla_grupo(unique(c((partidos |> filter(Grupo==grupo) |> pull(`Equipo A`)),(partidos |> filter(Grupo==grupo) |> pull(`Equipo B`))))) 
 ```
 
-#### Grupo H
+### Grupo G
 
 ```{r}
-grupos %>% filter(País %in% c("Portugal","Ghana","Uruguay","Corea del Sur")) %>% 
-  arrange(desc("1ro Grupo")) %>% 
-  reactable(
-    # ALL one page option (no scrolling or page swapping)
-    pagination = FALSE,
-    # compact for an overall smaller table width wise
-    compact = TRUE,
-    # borderless - TRUE or FALSE
-    borderless = FALSE,
-    # Stripes - TRUE or FALSE
-    striped = FALSE,
-    # fullWidth - either fit to width or not
-    fullWidth = FALSE,
-    # apply defaults
-    # 100 px and align to center of column
-    defaultColDef = colDef(
-      align = "center",
-      minWidth = 100
-    ),
-    
-    # Add theme for the top border
-    theme = reactableTheme(
-      headerStyle = list(
-        "&:hover[aria-sort]" = list(background = "hsl(0, 0%, 96%)"),
-        "&[aria-sort='ascending'], &[aria-sort='descending']" =
-          list(background = "hsl(0, 0%, 96%)"),
-        borderColor = "#555"
-      )),
-    
-    # This part allows us to apply specific things to each column
-    columns = list(
-      img = colDef(cell = embed_img(height = 20, width = 30),
-                   name=""),
-      `1ro Grupo` = colDef(
-        name = "1ro Grupo",
-        style = function(value) {
-          value
-          normalized <- (value - xmin) / (xmax - xmin)
-          color <- good_color(normalized)
-          list(background = color)
-        }
-      ),
-      `2do Grupo` = colDef(
-        name = "2do Grupo",
-        style = function(value) {
-          value
-          normalized <- (value - xmin) / (xmax - xmin)
-          color <- good_color(normalized)
-          list(background = color)
-        }
-      ),
-      `3ro Grupo` = colDef(
-        name = "3ro Grupo",
-        style = function(value) {
-          value
-          normalized <- (value - xmin) / (xmax - xmin)
-          color <- good_color(normalized)
-          list(background = color)
-        }
-      ),
-      `4to Grupo` = colDef(
-        name = "4to Grupo",
-        style = function(value) {
-          value
-          normalized <- (value - xmin) / (xmax - xmin)
-          color <- good_color(normalized)
-          list(background = color)
-        }
-      )
-      )
-    )
+grupo <- "G"
+generar_tabla_grupo(unique(c((partidos |> filter(Grupo==grupo) |> pull(`Equipo A`)),(partidos |> filter(Grupo==grupo) |> pull(`Equipo B`))))) 
 ```
+
+### Grupo H
+
+```{r}
+grupo <- "H"
+generar_tabla_grupo(unique(c((partidos |> filter(Grupo==grupo) |> pull(`Equipo A`)),(partidos |> filter(Grupo==grupo) |> pull(`Equipo B`))))) 
+```
+
+### Grupo I
+
+```{r}
+grupo <- "I"
+generar_tabla_grupo(unique(c((partidos |> filter(Grupo==grupo) |> pull(`Equipo A`)),(partidos |> filter(Grupo==grupo) |> pull(`Equipo B`))))) 
+```
+
+### Grupo J
+
+```{r}
+grupo <- "J"
+generar_tabla_grupo(unique(c((partidos |> filter(Grupo==grupo) |> pull(`Equipo A`)),(partidos |> filter(Grupo==grupo) |> pull(`Equipo B`))))) 
+```
+
+### Grupo K
+
+```{r}
+grupo <- "K"
+generar_tabla_grupo(unique(c((partidos |> filter(Grupo==grupo) |> pull(`Equipo A`)),(partidos |> filter(Grupo==grupo) |> pull(`Equipo B`))))) 
+```
+
+### Grupo L
+
+```{r}
+grupo <- "L"
+generar_tabla_grupo(unique(c((partidos |> filter(Grupo==grupo) |> pull(`Equipo A`)),(partidos |> filter(Grupo==grupo) |> pull(`Equipo B`))))) 
+```
+
+---
+
+## Partidos de la Fase de Grupos
+
+Esta tabla detalla las probabilidades estimadas para cada uno de los 72 partidos de la primera fase, calculadas sobre los goles simulados en las 50.000 iteraciones del modelo.
+
+```{r}
+# Definimos el formateador con un decimal y coma para el marcado decimal
+fmt_porcentaje <- scales::label_percent(accuracy = 0.1, decimal.mark = ",")
+
+reactable(
+  tabla_fase_grupos,
+  pagination = TRUE,
+  defaultPageSize = 12,
+  showPageSizeOptions = TRUE,
+  pageSizeOptions = c(12, 24, 72),
+  compact = TRUE,
+  bordered = TRUE,
+  striped = TRUE,
+  defaultColDef = colDef(
+    minWidth = 110,
+    headerStyle = list(background = "#f7f7f8")
+  ),
+  columns = list(
+    Partido = colDef(
+      maxWidth = 70, 
+      align = "center",
+      style = list(fontWeight = "bold")
+    ),
+    `Equipo 1` = colDef(
+      minWidth = 150, 
+      align = "right",
+      style = list(fontWeight = "bold")
+    ),
+    `Equipo 2` = colDef(
+      minWidth = 150, 
+      align = "left",
+      style = list(fontWeight = "bold")
+    ),
+    `Gana Equipo 1` = colDef(
+      align = "center",
+      cell = data_bars(tabla_fase_grupos, fill_color = "#70db70", text_position = "outside-end", number_fmt = fmt_porcentaje)
+    ),
+    `Gana Equipo 2` = colDef(
+      align = "center",
+      cell = data_bars(tabla_fase_grupos, fill_color = "#70db70", text_position = "outside-end", number_fmt = fmt_porcentaje)
+    ),
+    Empate = colDef(
+      align = "center",
+      cell = data_bars(tabla_fase_grupos, fill_color = "#ffeb3b", text_position = "outside-end", number_fmt = fmt_porcentaje)
+    )
+  )
+)
+```
+
+
+---
+
+## Probabilidades de Enfrentamientos en Fase Final
+
+A continuación se presentan los 5 cruces más probables para cada partido de la fase eliminatoria.
+
+```{r enfrentamientos_finales, results='asis'}
+library(knitr)
+library(kableExtra)
+library(htmltools)
+library(scales)
+
+# Diccionario de instancias corregido
+get_instancia <- function(n) {
+  if (n == 104) return("Final")
+  if (n == 103) return("Tercer Puesto")
+  if (n >= 101 & n <= 102) return("Semifinal")
+  if (n >= 97 & n <= 100) return("Cuartos de Final")
+  if (n >= 89 & n <= 96) return("Octavos de Final")
+  if (n >= 73 & n <= 88) return("16avos de Final")
+  return("")
+}
+
+# Función de tabla optimizada
+obtener_tabla_cruce <- function(n_partido) {
+  cruces <- matriz_enfrentamientos[, as.character(n_partido)]
+  
+  df_cruces <- as.data.frame(table(cruces)) %>%
+    rename(Enfrentamiento = cruces, Frecuencia = Freq) %>%
+    mutate(
+      Probabilidad = Frecuencia / n_sims,
+      Prob_Texto = percent(Probabilidad, accuracy = 0.1)
+    ) %>%
+    arrange(desc(Probabilidad)) %>%
+    slice(1:5) %>%
+    select(Enfrentamiento, Prob_Texto)
+
+  kable(df_cruces, 
+        format = "html",
+        col.names = c("Enfrentamiento", "Probabilidad")) %>%
+    kable_styling(bootstrap_options = c("striped", "hover", "condensed"), 
+                  full_width = FALSE, 
+                  position = "left")
+}
+
+# Renderizado de la lista de partidos
+partidos_a_mostrar <- 104:73
+
+for(p in partidos_a_mostrar) {
+  # Forzamos saltos de línea antes y después para que el Markdown reconozca el '###'
+  cat("\n\n### Partido", p, "-", get_instancia(p), "\n\n")
+  
+  # Imprimir la tabla
+  print(tagList(HTML(obtener_tabla_cruce(p))))
+  
+  # Separador visual
+  cat("\n<hr>\n") 
+}
+```
+
